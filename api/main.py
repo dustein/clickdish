@@ -17,7 +17,7 @@ async def check_access(device_id: str):
     Simula o que acontecerá antes de processar uma imagem.
     """
     try:
-        can_proceed, message = db.check_access(device_id)
+        can_proceed, message = db.check_user_access(device_id)
         return {
             "device_id": device_id,
             "allowed": can_proceed,
@@ -25,16 +25,25 @@ async def check_access(device_id: str):
         }
     except Exception as e:
         # Erro genérico para não expor detalhes do banco no log do cliente
-        raise HTTPException(status_code=500, detail="Erro interno ao processar acesso.")
+        raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/simulate-usage/{device_id}")
-async def simulate_usage(device_id: str):
-    """
-    Rota para testar o incremento de cards usados.
-    Útil para você validar se o contador no Supabase está subindo.
-    """
+@app.post("/analyze/{device_id}")
+async def analyze_plate(device_id: str):
+    # 1. Primeiro verifica se tem saldo
+    can_proceed, message = db.check_user_access(device_id)
+    
+    if not can_proceed:
+        raise HTTPException(status_code=402, detail=message)
+
+    # 2. [Aqui entrará a lógica da IA do Gemini depois]
+    
+    # 3. Se a análise deu certo, decrementa um crédito
     try:
         db.increment_usage(device_id)
-        return {"status": "success", "message": "Contador incrementado com sucesso."}
+        return {
+            "status": "success",
+            "message": "Análise realizada!",
+            "new_balance": "O contador foi atualizado no banco."
+        }
     except Exception as e:
-        raise HTTPException(status_code=500, detail="Erro ao atualizar contador.")
+        raise HTTPException(status_code=500, detail="Erro ao atualizar consumo.")
