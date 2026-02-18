@@ -50,24 +50,32 @@ function App() {
       });
 
       setResult(response.data.analysis);
-    } catch (err: any) {
+    } catch (err) { // <--- Remova o ": any"
       console.error(err);
       
-      // Tratamento dos erros HTTP configurados no Backend
-      if (err.response?.status === 429) {
-        setError({
-            title: "Muitas tentativas!", 
-            msg: "O sistema de segurança bloqueou requisições rápidas demais. Aguarde 1 minuto."
-        });
-      } else if (err.response?.status === 402) {
-        setError({
-            title: "Limite Gratuito Atingido", 
-            msg: "Você usou seus créditos gratuitos neste dispositivo."
-        });
+      // Verifica se o erro veio do Axios (requisição HTTP)
+      if (axios.isAxiosError(err)) {
+        if (err.response?.status === 429) {
+          setError({
+              title: "Muitas tentativas!", 
+              msg: "O sistema de segurança bloqueou requisições rápidas demais. Aguarde 1 minuto."
+          });
+        } else if (err.response?.status === 402) {
+          setError({
+              title: "Limite Gratuito Atingido", 
+              msg: "Você usou seus créditos gratuitos neste dispositivo."
+          });
+        } else {
+          setError({
+              title: "Erro no Servidor", 
+              msg: "Não foi possível analisar o prato. Tente novamente."
+          });
+        }
       } else {
+        // Erro genérico (não foi o Axios, pode ser erro de código no front)
         setError({
-            title: "Erro no Servidor", 
-            msg: "Não foi possível analisar o prato. Tente novamente."
+            title: "Erro Desconhecido", 
+            msg: "Ocorreu um erro inesperado na aplicação."
         });
       }
     } finally {
