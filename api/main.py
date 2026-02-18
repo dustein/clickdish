@@ -1,112 +1,92 @@
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, UploadFile, File
+from fastapi import FastAPI, HTTPException, UploadFile, File, Depends, Header, Request, Query
+from fastapi.middleware.cors import CORSMiddleware
 from database import DatabaseManager
 from ai_service import AIService
+from auth_deps import get_current_user
+
+# ### SEGURANÇA: Imports do Rate Limiter ###
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
 load_dotenv()
 
-# Inicializa o app e o gerenciador do banco
+# ### SEGURANÇA: Configura o limitador baseando-se no IP do cliente ###
+limiter = Limiter(key_func=get_remote_address)
+
 app = FastAPI(title="ClickDish API")
+
+# ### SEGURANÇA: Registra o limitador no app ###
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+# Configuração de CORS (Permite que o Front fale com o Back)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"], # Em produção, mudaremos para ["https://seusite.com"]
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 db = DatabaseManager()
-
-
-
-@app.get("/health")
-async def health_check():
-    """Rota simples para verificar se o servidor está rodando."""
-    return {"status": "ok", "message": "Backend operacional"}
-
-
-
-@app.get("/check-access/{device_id}")
-async def check_access(device_id: str):
-    """
-    Rota de teste para validar a lógica de acesso.
-    Simula o que acontecerá antes de processar uma imagem.
-    """
-    try:
-        can_proceed, message = db.check_user_access(device_id)
-        return {
-            "device_id": device_id,
-            "allowed": can_proceed,
-            "message": message
-        }
-    except Exception as e:
-        # Erro genérico para não expor detalhes do banco no log do cliente
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-
-@app.get("/test-increment/{device_id}")
-async def test_increment(device_id: str):
-    """
-    Rota temporária para testar se o contador de cards está subindo no Supabase.
-    """
-    try:
-        # 1. Incrementa o uso no banco
-        db.increment_usage(device_id)
-        
-        # 2. Busca o novo valor para confirmar
-        res = db.supabase.table("usage_control").select("cards_used").eq("device_id", device_id).execute()
-        novo_valor = res.data[0]["cards_used"] if res.data else "Erro"
-        
-        return {
-            "status": "success",
-            "device_id": device_id,
-            "novo_contador": novo_valor,
-            "proximo_passo": "Verifique se o valor mudou no painel do Supabase"
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-
-@app.post("/analyze/{device_id}")
-async def analyze_plate(device_id: str):
-    # 1. Primeiro verifica se tem saldo
-    can_proceed, message = db.check_user_access(device_id)
-    
-    if not can_proceed:
-        raise HTTPException(status_code=402, detail=message)
-
-    # 2. [Aqui entrará a lógica da IA do Gemini depois]
-    
-    # 3. Se a análise deu certo, decrementa um crédito
-    try:
-        db.increment_usage(device_id)
-        return {
-            "status": "success",
-            "message": "Análise realizada!",
-            "new_balance": "O contador foi atualizado no banco."
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail="Erro ao atualizar consumo.")
-
-
-
 ai = AIService()
 
-@app.post("/analyze-dish/{device_id}")
-async def analyze_dish(device_id: str, file: UploadFile = File(...)):
-    # 1. Verifica se o usuário tem saldo no banco
-    can_proceed, message = db.check_user_access(device_id)
+# Injeta o banco no estado (CRÍTICO para o auth_deps funcionar)
+app.state.db = db
+
+@app.get("/health")
+async def health_check():    
+    return {"status": "ok", "message": "Backend operacional"}
+
+@app.post("/analyze-dish")
+# ### SEGURANÇA: Define o limite (Ex: 5 requisições por minuto por IP) ###
+@limiter.limit("3/minute")
+async def analyze_dish(
+    request: Request, # <--- OBRIGATÓRIO para o limiter funcionar
+    file: UploadFile = File(...),
+    # Aceita via Header (App/Prod) ou Query (Swagger/Teste)
+    device_id: str | None = Header(default=None, alias="X-Device-ID"),
+    query_device_id: str | None = Query(default=None, alias="device_id"),
+    user = Depends(get_current_user) 
+):
+    """
+    Analisa o prato.
+    Prioridade: Usuário Logado > Device ID.
+    Segurança: Máximo 5 tentativas/minuto por IP.
+    """
+    # Resolve qual device_id usar (Header tem prioridade sobre Query)
+    final_device_id = device_id or query_device_id
+    user_id = user.id if user else None
+    
+    # Validação: Precisa de pelo menos um (Login ou Device ID)
+    if not user_id and not final_device_id:
+        raise HTTPException(status_code=400, detail="É necessário estar logado ou fornecer um Device ID.")
+
+    # 1. Verifica Acesso no Banco
+    can_proceed, message = db.check_user_access(device_id=final_device_id, user_id=user_id)
+    
     if not can_proceed:
         raise HTTPException(status_code=402, detail=message)
 
     try:
-        # 2. Lê os bytes da imagem enviada
+        # 2. Processamento IA
         image_bytes = await file.read()
-
-        # 3. Chama a IA
         result = await ai.analyze_plate_image(image_bytes)
-
-        # 4. Se a IA respondeu com sucesso, incrementa o uso no banco
-        db.increment_usage(device_id)
+        
+        # 3. Incrementa Uso e Salva Log
+        db.increment_usage(device_id=final_device_id, user_id=user_id)
+        db.save_analysis(device_id=final_device_id, result_json=result, user_id=user_id)
 
         return {
             "status": "success",
             "analysis": result,
-            "credits_update": "Contador incrementado com sucesso."
+            "user_context": "Registrado" if user_id else "Visitante",
+            "credits_update": "Contabilizado."
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Erro no processamento: {str(e)}")
+        print(f"Erro no endpoint: {e}")
+        if "429" in str(e): # Erro de cota do Gemini (Google)
+            raise HTTPException(status_code=429, detail="O sistema está sobrecarregado. Tente em 1 min.")
+        raise HTTPException(status_code=500, detail="Erro interno no servidor.")

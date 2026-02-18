@@ -4,7 +4,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Configuração Centralizada (Fácil de alterar depois)
 INITIAL_FREE_LIMIT = 4 
 
 class DatabaseManager:
@@ -13,50 +12,82 @@ class DatabaseManager:
         key = os.getenv("SUPABASE_SERVICE_KEY")
         self.supabase: Client = create_client(url, key)
 
-    def check_user_access(self, device_id: str):
+    def check_user_access(self, device_id: str, user_id: str = None):
         """
-        Verifica se o usuário pode realizar uma análise baseado no saldo de cards.
+        Verifica acesso com prioridade:
+        1. Se tem user_id (Logado) -> Verifica conta do usuário.
+        2. Se não tem user_id (Anônimo) -> Verifica device_id.
         """
-        # 1. Busca o dispositivo
-        res = self.supabase.table("usage_control").select("*").eq("device_id", device_id).execute()
+        
+        # --- FLUXO 1: USUÁRIO LOGADO ---
+        if user_id:
+            # Busca registro do usuário
+            res = self.supabase.table("usage_control").select("*").eq("user_id", user_id).execute()
+            
+            # Se usuário nunca usou, cria o registro inicial
+            if not res.data:
+                self.supabase.table("usage_control").insert({
+                    "user_id": user_id, 
+                    "cards_used": 0,
+                    "is_premium": False 
+                }).execute()
+                return True, f"Bem-vindo! {INITIAL_FREE_LIMIT} análises disponíveis."
+            
+            user_data = res.data[0]
+            
+            # Se for Premium, libera tudo
+            if user_data.get("is_premium"):
+                return True, "Acesso Premium Ilimitado."
+            
+            # Se for Free, verifica saldo
+            if user_data["cards_used"] < INITIAL_FREE_LIMIT:
+                remaining = INITIAL_FREE_LIMIT - user_data["cards_used"]
+                return True, f"Usuário Free: Restam {remaining} análises."
+            
+            return False, "Limite da conta esgotado. Faça upgrade para Premium."
+
+        # --- FLUXO 2: USUÁRIO ANÔNIMO (DEVICE ID) ---
+        # Busca registro do device (garantindo que user_id é nulo para não confundir)
+        res = self.supabase.table("usage_control").select("*").eq("device_id", device_id).is_("user_id", "null").execute()
         
         if not res.data:
-            # Usuário novo: Registra com 0 cards usados
             self.supabase.table("usage_control").insert({
                 "device_id": device_id, 
-                "cards_used": 0  # Agora usamos um contador
+                "cards_used": 0,
+                "is_premium": False
             }).execute()
-            return True, f"Acesso liberado: Você tem {INITIAL_FREE_LIMIT} análises gratuitas."
+            return True, f"Visitante: {INITIAL_FREE_LIMIT} análises gratuitas."
 
-        user_status = res.data[0]
-        cards_used = user_status.get("cards_used", 0)
-
-        # 2. Verifica se ainda está dentro do limite gratuito
-        if cards_used < INITIAL_FREE_LIMIT:
-            restantes = INITIAL_FREE_LIMIT - cards_used
-            return True, f"Acesso liberado: Restam {restantes} análises gratuitas."
-
-        # 3. Se acabou o free, verifica assinatura ativa
-        sub_res = self.supabase.table("subscriptions")\
-            .select("status")\
-            .eq("device_id", device_id)\
-            .eq("status", "active")\
-            .execute()
-
-        if sub_res.data:
-            return True, "Acesso liberado: Assinante ativo."
-
-        # 4. Bloqueio
-        return False, "Limite de testes atingido: Assine para continuar gerando cards."
-
-    def increment_usage(self, device_id: str):
-        """Incrementa o contador de cards usados pelo dispositivo"""
-        # Primeiro buscamos o valor atual para somar 1
-        res = self.supabase.table("usage_control").select("cards_used").eq("device_id", device_id).execute()
+        anon_data = res.data[0]
         
-        if res.data:
-            current_count = res.data[0]["cards_used"]
-            self.supabase.table("usage_control")\
-                .update({"cards_used": current_count + 1})\
-                .eq("device_id", device_id)\
-                .execute()
+        cards_used = anon_data.get("cards_used", 0)
+        if cards_used < INITIAL_FREE_LIMIT:
+            return True, f"Visitante: Restam {INITIAL_FREE_LIMIT - cards_used} análises."
+
+        return False, "Limite do dispositivo atingido. Crie uma conta ou assine."
+
+    def increment_usage(self, device_id: str, user_id: str = None):
+        """Incrementa o contador correto (User ou Device)"""
+        if user_id:
+            res = self.supabase.table("usage_control").select("cards_used").eq("user_id", user_id).execute()
+            if res.data:
+                current = res.data[0]["cards_used"]
+                self.supabase.table("usage_control").update({"cards_used": current + 1}).eq("user_id", user_id).execute()
+        elif device_id:
+            # Incrementa apenas se for registro anônimo (user_id is null)
+            res = self.supabase.table("usage_control").select("cards_used").eq("device_id", device_id).is_("user_id", "null").execute()
+            if res.data:
+                current = res.data[0]["cards_used"]
+                self.supabase.table("usage_control").update({"cards_used": current + 1}).eq("device_id", device_id).is_("user_id", "null").execute()
+
+    def save_analysis(self, device_id: str, result_json: dict, user_id: str = None):
+        """Salva o log com referência ao usuário se existir"""
+        data = {
+            "device_id": device_id, # Mantém device_id para histórico mesmo logado
+            "raw_result": result_json,
+            "success": True
+        }
+        if user_id:
+            data["user_id"] = user_id
+        
+        return self.supabase.table("analysis_logs").insert(data).execute()
