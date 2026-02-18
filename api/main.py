@@ -1,6 +1,9 @@
+from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, UploadFile, File
 from database import DatabaseManager
 from ai_service import AIService
+
+load_dotenv()
 
 # Inicializa o app e o gerenciador do banco
 app = FastAPI(title="ClickDish API")

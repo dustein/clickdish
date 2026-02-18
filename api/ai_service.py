@@ -1,3 +1,5 @@
+from dotenv import load_dotenv
+load_dotenv()
 import google.generativeai as genai
 import os
 import json
@@ -6,7 +8,7 @@ class AIService:
     def __init__(self):
         genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
         # Usamos o 1.5-flash por ser mais rápido e econômico para SaaS
-        self.model = genai.GenerativeModel('gemini-1.5-flash')
+        self.model = genai.GenerativeModel('gemini-flash-lite-latest')
 
     async def analyze_plate_image(self, image_bytes: bytes):
         """
