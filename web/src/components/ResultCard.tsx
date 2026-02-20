@@ -348,6 +348,10 @@
 
 // export default ResultCard;
 
+
+
+
+
 import React from 'react';
 import { Zap, Leaf } from 'lucide-react';
 
@@ -442,12 +446,12 @@ const ResultCard: React.FC<ResultCardProps> = ({ imageSrc, data, id }) => {
                     y1={`${labelY}%`} 
                     x2={`${targetX}%`} 
                     y2={`${targetY}%`} 
-                    stroke="#f97316" // Laranja
-                    strokeWidth="1.5"
+                    stroke="#ffffff" // Laranja
+                    strokeWidth="2.5"
                     strokeDasharray="4 4" 
                   />
-                  <circle cx={`${targetX}%`} cy={`${targetY}%`} r="3" fill="#f97316" />
-                  <circle cx={`${targetX}%`} cy={`${targetY}%`} r="8" fill="none" stroke="#f97316" strokeWidth="1.5" opacity="0.8" />
+                  <circle cx={`${targetX}%`} cy={`${targetY}%`} r="3" fill="#fffb0a" />
+                  <circle cx={`${targetX}%`} cy={`${targetY}%`} r="8" fill="none" stroke="#c2c2c2" strokeWidth="1.5" opacity="0.8" />
                 </g>
               );
             })}
@@ -473,7 +477,7 @@ const ResultCard: React.FC<ResultCardProps> = ({ imageSrc, data, id }) => {
                   <span className={`text-white text-[9px] font-bold uppercase tracking-wider leading-tight mb-1 ${isLeft ? 'text-right' : 'text-left'}`}>
                     {item.name}
                   </span>
-                  <span className="text-orange-500 text-[10px] font-black tracking-widest text-center">
+                  <span className="text-orange-300 text-[10px] font-black tracking-widest text-center">
                     {item.calories_est} KCAL
                   </span>
                 </div>
