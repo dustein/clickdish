@@ -56,26 +56,35 @@ async def analyze_dish(
     Prioridade: Usuário Logado > Device ID.
     Segurança: Máximo 5 tentativas/minuto por IP.
     """
-    # Resolve qual device_id usar (Header tem prioridade sobre Query)
-    final_device_id = device_id or query_device_id
+    # 1. Identifica o usuário
     user_id = user.id if user else None
+    
+    # 2. Resolve qual device_id usar (Header tem prioridade sobre Query)
+    final_device_id = device_id or query_device_id
+    
+    # --- CORREÇÃO DO ERRO 500 AQUI ---
+    # Se o usuário está logado, mas o device_id veio nulo, criamos um ID virtual para ele.
+    # Isso evita que o banco de dados quebre por causa da regra de "NOT NULL" no device_id.
+    if user_id and not final_device_id:
+        final_device_id = f"user_{user_id}"
+    # ---------------------------------
     
     # Validação: Precisa de pelo menos um (Login ou Device ID)
     if not user_id and not final_device_id:
         raise HTTPException(status_code=400, detail="É necessário estar logado ou fornecer um Device ID.")
 
-    # 1. Verifica Acesso no Banco
+    # 3. Verifica Acesso no Banco
     can_proceed, message = db.check_user_access(device_id=final_device_id, user_id=user_id)
     
     if not can_proceed:
         raise HTTPException(status_code=402, detail=message)
 
     try:
-        # 2. Processamento IA
+        # 4. Processamento IA
         image_bytes = await file.read()
         result = await ai.analyze_plate_image(image_bytes)
         
-        # 3. Incrementa Uso e Salva Log
+        # 5. Incrementa Uso e Salva Log
         db.increment_usage(device_id=final_device_id, user_id=user_id)
         db.save_analysis(device_id=final_device_id, result_json=result, user_id=user_id)
 
