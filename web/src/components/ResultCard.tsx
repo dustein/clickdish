@@ -29,13 +29,13 @@ const ResultCard: React.FC<ResultCardProps> = ({ imageSrc, data, id }) => {
   return (
     <div 
       id={id}
-      className="relative w-full max-w-sm mx-auto aspect-[9/16] bg-[#0f172a] text-slate-100 overflow-hidden rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] border-4 border-[#1e293b] flex flex-col"
+      className="relative w-full max-w-sm mx-auto aspect-9/16 bg-[#d4d4d4] text-slate-100 overflow-hidden rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] border-4 border-[#1e293b] flex flex-col"
     >
       {/* =========================================
           1. HEADER (Título com a linha laranja da sua referência)
           ========================================= */}
       <div className="w-full pt-8 pb-2 px-6 z-20 text-center">
-        <h2 className="text-2xl font-black text-white uppercase tracking-widest leading-tight drop-shadow-md">
+        <h2 className="text-2xl font-black text-white bg-gray-400/50 rounded-2xl py-2 uppercase tracking-widest leading-tight drop-shadow-md">
           {data.meal_name || "Análise do Prato"}
         </h2>
         <div className="h-1.5 w-12 bg-orange-600 mx-auto mt-3 rounded-full shadow-[0_0_10px_rgba(234,88,12,0.5)]" />
@@ -119,7 +119,7 @@ const ResultCard: React.FC<ResultCardProps> = ({ imageSrc, data, id }) => {
                   [isLeft ? 'right' : 'left']: '85%' 
                 }}
               >
-                <div className="bg-[#0f172a] border border-white/10 px-3 py-1.5 rounded-xl shadow-2xl flex flex-col min-w-[90px] max-w-[110px]">
+                <div className="bg-cyan-900/95 border border-white/10 px-3 py-1.5 rounded-xl shadow-2xl flex flex-col min-w-22.5 max-w-27.5">
                   <span className={`text-white text-[9px] font-bold uppercase tracking-wider leading-tight mb-1 ${isLeft ? 'text-right' : 'text-left'}`}>
                     {item.name}
                   </span>
@@ -150,7 +150,7 @@ const ResultCard: React.FC<ResultCardProps> = ({ imageSrc, data, id }) => {
         </div>
 
         <div>
-          <h3 className="text-xl font-serif italic text-white leading-tight tracking-tight mb-2 drop-shadow-sm">
+          <h3 className="text-sm font-serif italic text-white leading-tight tracking-tight mb-2 drop-shadow-sm">
             "{data.comentary}"
           </h3>
           <p className="text-xs text-slate-400 font-medium leading-relaxed">
