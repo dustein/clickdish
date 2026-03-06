@@ -1,5 +1,6 @@
-import { Utensils, User, LogIn } from 'lucide-react';
+import { User, LogIn } from 'lucide-react';
 import type { Session } from '@supabase/supabase-js';
+import ClickDishIcon from '../assets/logotipo-v1.webp';
 
 interface HeaderProps {
   session: Session | null;
@@ -11,7 +12,13 @@ export function Header({ session, onLoginClick, onLogoutClick }: HeaderProps) {
   return (
     <header className="w-full flex items-center justify-between py-6">
       <h1 className="text-2xl font-bold flex items-center gap-2 text-brand-500 tracking-tight">
-        <Utensils className="fill-brand-500 text-slate-900" /> ClickDish
+        <img className='h-12' src={ClickDishIcon} alt="Descrição da imagem" />
+        <div className='font-bold text-3xl 
+           bg-gradient-to-r from-blue-600 to-orange-600 
+           bg-clip-text text-transparent 
+           -[webkit-text-stroke:1px_white]'>
+          ClickDish
+        </div>
       </h1>
 
       <div className="flex items-center gap-3">
