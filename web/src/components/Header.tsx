@@ -14,7 +14,7 @@ export function Header({ session, onLoginClick, onLogoutClick }: HeaderProps) {
       <h1 className="text-2xl font-bold flex items-center gap-2 text-brand-500 tracking-tight">
         <img className='h-12' src={ClickDishIcon} alt="Descrição da imagem" />
         <div className='font-bold text-3xl 
-           bg-gradient-to-r from-blue-600 to-orange-600 
+           bg-linear-to-r from-blue-600 to-orange-600 
            bg-clip-text text-transparent 
            -[webkit-text-stroke:1px_white]'>
           ClickDish
