@@ -1,88 +1,55 @@
-import React from 'react';
-import { darken } from '../lib/colorExtractor';
 import ClickDishIcon from '../assets/logotipo-v2.webp';
+import type { AnalysisResult, AnalysisItem } from './ResultCard';
 
-export interface AnalysisItem {
-  name: string;
-  calories_est: number;
-  health_score: number;
-  box_2d: [number, number, number, number];
-}
-
-export interface AnalysisResult {
-  items: AnalysisItem[];
-  total_vitality: number;
-  recommendation: string;
-  comentary: string;
-  meal_name?: string;
-}
-
-interface ResultCardProps {
+interface ResultCardPreviewProps {
   imageSrc: string;
   data: AnalysisResult;
-  id?: string;
 }
 
-const ResultCard: React.FC<ResultCardProps> = ({ imageSrc, data, id }) => {
-  const accentColor  = '#3d7a5c';
-  const accentDark   = darken(accentColor, 0.35);
+/**
+ * Versão compacta do card para exibição na tela do celular.
+ * A recomendação (data.recommendation) é exibida fora deste componente, no App.tsx.
+ */
+const ResultCardPreview: React.FC<ResultCardPreviewProps> = ({ imageSrc, data }) => {
+  const accentDark   = '#2a5640';
   const calColor     = '#2a5640';
   const commentColor = '#334155';
   const scoreColor   = '#22c55e';
-
-  const labelBg     = 'rgba(238,247,243,0.95)';
-  const labelBorder = 'rgba(61,122,92,0.2)';
 
   const totalItems = data.items.length;
 
   return (
     <div
-      id={id}
-      className="relative w-full h-full overflow-hidden rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.15)] border-4 border-white flex flex-col"
+      className="relative w-full overflow-hidden rounded-2xl shadow-xl border-2 border-white flex flex-col"
       style={{ backgroundColor: '#eef7f3', color: '#1e293b' }}
     >
-      {/* =========================================
-          1. HEADER
-          ========================================= */}
-      <div className="w-full pt-8 pb-2 px-12 z-20 text-center">
-        <h2 className="text-4xl font-extrabold text-[#111827] tracking-tight leading-tight drop-shadow-sm">
+
+      {/* HEADER */}
+      <div className="w-full pt-4 pb-1 px-4 z-20 text-center">
+        <h2 className="text-xl font-extrabold text-[#111827] tracking-tight leading-tight drop-shadow-sm">
           {data.meal_name || 'Análise do Prato'} <img src={ClickDishIcon} alt="ClickDish" className="h-[1.4em] w-auto inline-block align-middle ml-2" />
         </h2>
       </div>
 
-      {/* =========================================
-          2. PALCO DA FOTO
-          ========================================= */}
-      <div className="relative flex-1 w-full flex items-center justify-center my-4">
-
-        {/* Fundo imersivo desfocado */}
+      {/* FOTO */}
+      <div className="relative w-full flex items-center justify-center py-4 px-6">
+        {/* Fundo desfocado */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <img
-            src={imageSrc}
-            className="w-full h-full object-cover blur-3xl opacity-10 saturate-100 scale-125"
-            style={{ mixBlendMode: 'multiply' }}
-            alt="bg-blur"
-          />
+          <img src={imageSrc} className="w-full h-full object-cover blur-3xl opacity-10 saturate-100 scale-125" alt="" />
         </div>
 
-        {/* Foto principal */}
-        <div className="relative w-[65%] aspect-square z-20">
-
-          {/* Foto redonda */}
+        {/* Círculo da foto */}
+        <div className="relative w-[72%] aspect-square z-20">
           <div className="w-full h-full rounded-full overflow-hidden bg-white"
-               style={{ border: '6px solid white', boxShadow: '0 15px 35px rgba(0,0,0,0.1)' }}>
-            <img
-              src={imageSrc}
-              className="w-full h-full object-cover"
-              alt="prato"
-            />
+               style={{ border: '3px solid white', boxShadow: '0 8px 20px rgba(0,0,0,0.1)' }}>
+            <img src={imageSrc} className="w-full h-full object-cover" alt="prato" />
           </div>
 
-          {/* SVG — linhas e marcadores */}
+          {/* SVG linhas */}
           <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full overflow-visible pointer-events-none z-10">
             <defs>
-              <marker id="arrowhead" markerWidth="4" markerHeight="4" refX="4" refY="2" orient="auto">
-                <path d={`M 0 0 L 4 2 L 0 4 z`} fill={accentDark} />
+              <marker id="arrowheadPreview" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto">
+                <path d="M 0 0 L 5 2.5 L 0 5 z" fill={accentDark} />
               </marker>
             </defs>
             {data.items.map((item: AnalysisItem, idx: number) => {
@@ -90,61 +57,54 @@ const ResultCard: React.FC<ResultCardProps> = ({ imageSrc, data, id }) => {
               const xMin = item.box_2d[1] / 10;
               const yMax = item.box_2d[2] / 10;
               const xMax = item.box_2d[3] / 10;
-
               const targetY = (yMin + yMax) / 2;
               const targetX = (xMin + xMax) / 2;
               const labelY = totalItems > 1 ? 15 + (idx * (70 / (totalItems - 1))) : 50;
               const isLeft = idx % 2 === 0;
               const lineStartX = isLeft ? 15 : 85;
-
               const cp1X = lineStartX + (targetX - lineStartX) * 0.4;
               const cp1Y = labelY;
               const cp2X = lineStartX + (targetX - lineStartX) * 0.6;
               const cp2Y = targetY;
-
               return (
                 <g key={idx}>
                   <path
                     d={`M ${lineStartX} ${labelY} C ${cp1X} ${cp1Y}, ${cp2X} ${cp2Y}, ${targetX} ${targetY}`}
                     stroke={accentDark}
-                    strokeWidth="0.6"
+                    strokeWidth="0.7"
                     fill="none"
                     strokeLinecap="round"
-                    markerEnd="url(#arrowhead)"
+                    markerEnd="url(#arrowheadPreview)"
                   />
-                  <circle cx={targetX} cy={targetY} r="1" fill={accentDark} />
-                  <circle cx={targetX} cy={targetY} r="2.2" fill="none" stroke={accentDark} strokeWidth="0.25" opacity="0.5" />
+                  <circle cx={targetX} cy={targetY} r="1.2" fill={accentDark} />
+                  <circle cx={targetX} cy={targetY} r="3" fill="none" stroke={accentDark} strokeWidth="0.3" opacity="0.5" />
                 </g>
               );
             })}
           </svg>
 
-          {/* Etiquetas com sobreposição */}
+          {/* Etiquetas */}
           {data.items.map((item: AnalysisItem, idx: number) => {
             const isLeft = idx % 2 === 0;
             const labelY = totalItems > 1 ? 15 + (idx * (70 / (totalItems - 1))) : 50;
-
             return (
               <div
                 key={`label-${idx}`}
                 className={`absolute transform -translate-y-1/2 flex flex-col z-30 ${isLeft ? 'items-end' : 'items-start'}`}
-                style={{
-                  top: `${labelY}%`,
-                  [isLeft ? 'right' : 'left']: '85%',
-                }}
+                style={{ top: `${labelY}%`, [isLeft ? 'right' : 'left']: '85%' }}
               >
                 <div
-                  className="px-4 py-2 rounded-xl flex flex-col items-center min-w-[120px] max-w-[170px]"
+                  className="px-2 py-1 rounded-lg flex flex-col items-center min-w-[65px] max-w-[90px]"
                   style={{
-                    backgroundColor: labelBg,
-                    border: `1px solid ${labelBorder}`,
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+                    backgroundColor: 'rgba(238,247,243,0.95)',
+                    border: '1px solid rgba(61,122,92,0.2)',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
                   }}
                 >
-                  <span className="text-[18px] font-semibold leading-tight text-center" style={{ color: '#1a2e20' }}>
+                  <span className="text-[10px] font-semibold leading-tight text-center" style={{ color: '#1a2e20' }}>
                     {item.name}
                   </span>
-                  <span className="text-[14px] font-bold tracking-wide mt-1" style={{ color: calColor }}>
+                  <span className="text-[8px] font-bold tracking-wide mt-0.5" style={{ color: calColor }}>
                     {item.calories_est} kcal
                   </span>
                 </div>
@@ -154,37 +114,36 @@ const ResultCard: React.FC<ResultCardProps> = ({ imageSrc, data, id }) => {
         </div>
       </div>
 
-      {/* =========================================
-          3. RODAPÉ
-          ========================================= */}
+      {/* RODAPÉ */}
       <div
-        className="w-full flex flex-col justify-end px-12 pb-7 pt-5 z-20 rounded-b-[2.5rem]"
+        className="w-full flex flex-col px-4 pb-4 pt-3 z-20 rounded-b-2xl"
         style={{ backgroundColor: '#ffffff', borderTop: '1px solid #f1f5f9' }}
       >
-        <div>
-          <h3 className="text-xl font-medium leading-snug tracking-tight mb-2" style={{ color: commentColor }}>
-            "{data.comentary}"
-          </h3>
-        </div>
+        <h3 className="text-[13px] font-medium leading-snug mb-3" style={{ color: commentColor }}>
+          "{data.comentary}"
+        </h3>
 
-        <div className="mt-4 flex items-end justify-between pt-4" style={{ borderTop: '1px solid #f1f5f9' }}>
+        <div className="flex items-end justify-between pt-3" style={{ borderTop: '1px solid #f1f5f9' }}>
           <div>
-            <p className="text-xs font-bold text-slate-400 tracking-widest uppercase mb-1">Nível de Saúde</p>
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-5xl font-black leading-none" style={{ color: scoreColor }}>{data.total_vitality}</span>
-              <span className="text-xl font-bold text-slate-400">/100</span>
+            <p className="text-[8px] font-bold text-slate-400 tracking-widest uppercase mb-0.5">Nível de Saúde</p>
+            <div className="flex items-baseline gap-0.5">
+              <span className="text-3xl font-black leading-none" style={{ color: scoreColor }}>{data.total_vitality}</span>
+              <span className="text-sm font-bold text-slate-400">/100</span>
             </div>
           </div>
-
-          <div className="flex flex-col items-center gap-1">
-            {/* QR Code placeholder — substituir pelo QR real do site ClickDish */}
-            <svg width="60" height="60" viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg" className="opacity-60">
+          {/* QR Code placeholder */}
+          <div className="flex flex-col items-center gap-0.5">
+            <svg width="36" height="36" viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg" className="opacity-60">
+              {/* Finder pattern TL */}
               <rect x="0" y="0" width="7" height="7" fill="none" stroke="#334155" strokeWidth="1"/>
               <rect x="2" y="2" width="3" height="3" fill="#334155"/>
+              {/* Finder pattern TR */}
               <rect x="14" y="0" width="7" height="7" fill="none" stroke="#334155" strokeWidth="1"/>
               <rect x="16" y="2" width="3" height="3" fill="#334155"/>
+              {/* Finder pattern BL */}
               <rect x="0" y="14" width="7" height="7" fill="none" stroke="#334155" strokeWidth="1"/>
               <rect x="2" y="16" width="3" height="3" fill="#334155"/>
+              {/* Data modules (fake pattern) */}
               <rect x="8" y="0" width="1" height="1" fill="#334155"/>
               <rect x="10" y="0" width="1" height="1" fill="#334155"/>
               <rect x="12" y="0" width="1" height="1" fill="#334155"/>
@@ -229,7 +188,7 @@ const ResultCard: React.FC<ResultCardProps> = ({ imageSrc, data, id }) => {
               <rect x="14" y="20" width="2" height="1" fill="#334155"/>
               <rect x="18" y="20" width="2" height="1" fill="#334155"/>
             </svg>
-            <span className="text-xs font-bold text-slate-400 tracking-widest uppercase">ClickDish</span>
+            <span className="text-[6px] font-bold text-slate-400 tracking-widest uppercase">ClickDish</span>
           </div>
         </div>
       </div>
@@ -238,4 +197,4 @@ const ResultCard: React.FC<ResultCardProps> = ({ imageSrc, data, id }) => {
   );
 };
 
-export default ResultCard;
+export default ResultCardPreview;

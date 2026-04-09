@@ -11,7 +11,7 @@ export function ErrorAlert({ error, session, onLoginClick }: ErrorAlertProps) {
   const isRateLimit = error.title.includes('Muitas');
 
   return (
-    <div className={`p-4 rounded-xl flex gap-3 ${isRateLimit ? 'bg-orange-500/10 text-orange-200 border-orange-500/20' : 'bg-red-500/10 text-red-200 border-red-500/20'} border animate-fade-in`}>
+    <div className={`p-4 rounded-xl flex gap-3 ${isRateLimit ? 'bg-orange-50 text-orange-900 border-orange-200' : 'bg-red-50 text-red-900 border-red-200'} border animate-fade-in shadow-sm`}>
       {isRateLimit ? <AlertTriangle className="shrink-0" /> : <Lock className="shrink-0" />}
       <div>
         <h3 className="font-bold text-sm">{error.title}</h3>

@@ -1,0 +1,4 @@
+# Dev-only dependencies — NOT installed by Vercel (which reads requirements.txt only)
+# Install locally with:
+#   pip install -r api/requirements-dev.txt
+pyngrok

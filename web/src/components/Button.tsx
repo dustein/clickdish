@@ -24,7 +24,7 @@ export function Button({
   
   // Estilos específicos de cada variante
   const variants = {
-    primary: "bg-brand-500 hover:bg-brand-600 text-slate-900 font-bold text-lg shadow-brand-500/20 disabled:bg-slate-800 disabled:text-slate-600 disabled:shadow-none",
+    primary: "bg-brand-500 hover:bg-brand-600 text-slate-900 font-bold text-lg shadow-brand-500/20 disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none",
     gradient: "bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-black border border-orange-400/50 shadow-orange-500/30 uppercase tracking-wide text-sm disabled:opacity-50"
   };
 

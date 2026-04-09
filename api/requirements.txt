@@ -1,7 +1,9 @@
 fastapi
 uvicorn
 supabase
-google-generativeai
+google-genai
 python-multipart
 python-dotenv
 slowapi
+mercadopago
+python-dateutil

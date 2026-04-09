@@ -7,6 +7,8 @@
   --color-brand-500: #10B981;
   --color-brand-600: #059669;
   --color-brand-900: #064E3B;
+  
+  --color-bg-page: #f9fafb;
 
   /* Animação Fade-in */
   --animate-fade-in: fadeIn 0.5s ease-out;
@@ -20,9 +22,9 @@
 /* Estilos Globais */
 body {
   /* No v4, usamos as cores do tema assim: */
-  background-color: var(--color-slate-900); 
-  color: var(--color-slate-50);
-  /* Ou usamos as classes utilitárias no HTML (bg-slate-900), 
-     mas para garantir o fundo escuro sempre: */
-  @apply bg-slate-900 text-slate-50 antialiased;
+  background-color: var(--color-stone-50); 
+  color: var(--color-slate-900);
+  /* Ou usamos as classes utilitárias no HTML (bg-stone-50), 
+     mas para garantir o fundo claro sempre: */
+  @apply bg-stone-50 text-slate-900 antialiased;
 }

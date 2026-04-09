@@ -43,6 +43,8 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
     } catch (err) {
       const error = err as Error; 
       setError(error.message || 'Erro ao processar solicitação');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -60,17 +62,18 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
       if (error) throw error;
     } catch (err) {
       if (err instanceof Error) {
-        setError('Erro ao autenticar com o Google: ' + err.message)
-        setLoading(false);
+        setError('Erro ao autenticar com o Google: ' + err.message);
       }
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
-      <div className="bg-slate-900 border border-slate-700 w-full max-w-sm rounded-2xl p-6 relative shadow-2xl">
+    <div className="fixed inset-0 bg-slate-950/40 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-fade-in">
+      <div className="bg-white border border-slate-200 w-full max-w-sm rounded-2xl p-6 relative shadow-2xl">
         
-        <button onClick={onClose} className="absolute top-4 right-4 text-slate-500 hover:text-slate-300">
+        <button onClick={onClose} className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors">
           <X size={20} />
         </button>
 
@@ -78,11 +81,11 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-brand-500/10 text-brand-500 mb-3 border border-brand-500/20">
             <LogIn size={24} />
           </div>
-          <h2 className="text-xl font-bold text-white">
+          <h2 className="text-xl font-bold text-slate-900">
             {isSignUp ? 'Criar sua conta' : 'Acessar ClickDish'}
           </h2>
-          <p className="text-sm text-slate-400 mt-1">
-            Nutrição inteligente na palma da mão.
+          <p className="text-sm text-slate-500 mt-1">
+            A nutrição pode ser divertida e social!
           </p>
         </div>
 
@@ -105,21 +108,21 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
 
         {/* --- DIVISOR --- */}
         <div className="relative flex py-2 items-center">
-            <div className="flex-grow border-t border-slate-700"></div>
-            <span className="flex-shrink-0 mx-4 text-xs text-slate-500 font-medium uppercase">ou email</span>
-            <div className="flex-grow border-t border-slate-700"></div>
+            <div className="flex-grow border-t border-slate-100"></div>
+            <span className="flex-shrink-0 mx-4 text-xs text-slate-400 font-medium uppercase">ou email</span>
+            <div className="flex-grow border-t border-slate-100"></div>
         </div>
 
         {/* --- FORMULÁRIO EMAIL --- */}
         <form onSubmit={handleEmailAuth} className="space-y-4 mt-4">
           <div className="space-y-1">
-            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Email Corporativo ou Pessoal</label>
+            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Email</label>
             <div className="relative group">
               <Mail className="absolute left-3 top-3 text-slate-500 group-focus-within:text-brand-500 transition-colors" size={18} />
               <input 
                 type="email" 
                 required
-                className="w-full bg-slate-800 border border-slate-700 rounded-lg py-2.5 pl-10 pr-4 text-slate-200 focus:outline-none focus:border-brand-500 transition-colors placeholder:text-slate-600"
+                className="w-full bg-slate-50 border border-slate-200 rounded-lg py-2.5 pl-10 pr-4 text-slate-900 focus:outline-none focus:border-brand-500 transition-colors placeholder:text-slate-400"
                 placeholder="seu@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -135,7 +138,7 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
                 type="password" 
                 required
                 minLength={6}
-                className="w-full bg-slate-800 border border-slate-700 rounded-lg py-2.5 pl-10 pr-4 text-slate-200 focus:outline-none focus:border-brand-500 transition-colors placeholder:text-slate-600"
+                className="w-full bg-slate-50 border border-slate-200 rounded-lg py-2.5 pl-10 pr-4 text-slate-900 focus:outline-none focus:border-brand-500 transition-colors placeholder:text-slate-400"
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -159,13 +162,13 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
 
         <div className="mt-6 text-center text-sm">
           <span className="text-slate-500">
-            {isSignUp ? 'Já possui cadastro?' : 'Novo por aqui?'}
+            {isSignUp ? 'Já possui cadastro?' : 'Primeira vez aqui?'}
           </span>
           <button 
             onClick={() => { setIsSignUp(!isSignUp); setError(null); }}
             className="ml-2 text-brand-500 hover:text-brand-400 font-bold transition-colors"
           >
-            {isSignUp ? 'Fazer Login' : 'Criar Conta'}
+            {isSignUp ? 'Fazer Login' : 'Criar Conta Grátis!'}
           </button>
         </div>
 
