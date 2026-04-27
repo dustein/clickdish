@@ -6,7 +6,7 @@ from pydantic import BaseModel, EmailStr, Field
 from typing import Optional
 import logging
 
-from .database import DatabaseManager
+from api.database import DatabaseManager
 from .ai_service import AIService
 from .auth_deps import get_current_user
 from .payment_service import PaymentService
