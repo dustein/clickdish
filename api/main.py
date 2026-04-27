@@ -33,7 +33,8 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 # Configuração de CORS (Permite que o Front fale com o Back)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # Em produção, mudaremos para ["https://seusite.com"]
+    # allow_origins=["*"], # Em produção, mudaremos para ["https://seusite.com"]
+    allow_origins=["https://clickdish.vercel.app"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
