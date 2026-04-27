@@ -36,8 +36,8 @@ interface AnalysisResult {
 const loadingPhrases = [
   "Afiando as facas da IA... 🔪",
   "Aquecendo as panelas... 🔥",
-  "Identificando os ingredientes... 🥦",
-  "Calculando macros e calorias... 📊",
+  "Identificando os ingredientes... 🥦🍗",
+  "Calculando macros e calorias... 🧾",
   "Temperando os dados... 🧂",
   "Quase lá! Finalizando o empratamento... 🍽️"
 ];
@@ -108,8 +108,12 @@ function App() {
         'X-Device-ID': deviceId,
       };
       if (session?.access_token) headers['Authorization'] = `Bearer ${session.access_token}`;
-
+      //Para desenvolvimento local usar a linha abaixo
       const response = await axios.post('http://127.0.0.1:8000/analyze-dish', formData, { headers });
+
+      //Para produção usar a linha abaixo
+      // const response = await axios.post('/api/analyze-dish', formData, { headers });
+
       setResult(response.data.analysis);
       
     } catch (err: unknown) {
