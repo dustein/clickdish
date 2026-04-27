@@ -76,11 +76,11 @@ class PaymentRequest(BaseModel):
     # Idempotência
     idempotency_key: Optional[str] = Field(default=None, description="Chave UUID para evitar duplicatas")
 
-@app.get("/health")
+@app.get("/api/health")
 async def health_check():    
     return {"status": "ok", "message": "Backend operacional"}
 
-@app.post("/analyze-dish")
+@app.post("/api/analyze-dish")
 # ### SEGURANÇA: Define o limite (Ex: 5 requisições por minuto por IP) ###
 @limiter.limit("3/minute")
 async def analyze_dish(
