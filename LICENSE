@@ -2,20 +2,59 @@ MIT License
 
 Copyright (c) 2026 Eduardo DuStein
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+Copyright (c) 2026 [Seu Nome ou Nome da Empresa]
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+AVISO LEGAL — TODOS OS DIREITOS RESERVADOS
+
+Este software, incluindo seu código-fonte, binários compilados, design, interface
+gráfica, documentação e todos os arquivos associados (coletivamente, "o Software"),
+é protegido por leis de direitos autorais. Todos os direitos são reservados ao
+titular dos direitos autorais acima.
+
+NÃO é concedida permissão, gratuita ou onerosa, para qualquer pessoa obter
+uma cópia deste Software e dos arquivos de documentação associados, para:
+
+  - usar, copiar, modificar, mesclar, publicar ou distribuir o Software;
+  - sublicenciar ou vender cópias do Software;
+  - realizar engenharia reversa, descompilar ou desmontar o Software;
+  - criar obras derivadas com base no Software.
+
+Qualquer uso do Software sem autorização prévia e por escrito do titular dos
+direitos autorais é expressamente proibido e constitui violação dos direitos
+autorais, sujeitando o infrator às sanções previstas na Lei nº 9.610/1998
+(Lei de Direitos Autorais) e na Lei nº 9.609/1998 (Lei de Software), incluindo
+reparação civil por danos materiais e morais, bem como responsabilidade criminal.
+
+O SOFTWARE É FORNECIDO "COMO ESTÁ", SEM GARANTIA DE QUALQUER TIPO, EXPRESSA
+OU IMPLÍCITA, INCLUINDO, MAS NÃO SE LIMITANDO ÀS GARANTIAS DE COMERCIALIZAÇÃO,
+ADEQUAÇÃO A UM DETERMINADO FIM E NÃO VIOLAÇÃO.
+
+EM NENHUM CASO O TITULAR DOS DIREITOS AUTORAIS SERÁ RESPONSÁVEL POR QUALQUER
+RECLAMAÇÃO, DANO OU OUTRA RESPONSABILIDADE DECORRENTE DE OU EM CONEXÃO COM
+O SOFTWARE OU O USO OU OUTRAS NEGOCIAÇÕES NO SOFTWARE.
+
+---
+
+LEGAL NOTICE — ALL RIGHTS RESERVED
+
+This software, including its source code, compiled binaries, design, graphical
+interface, documentation, and all associated files (collectively, the "Software"),
+is protected by copyright laws and international treaties.
+
+Permission is NOT granted, free of charge or otherwise, to any person to:
+
+  - use, copy, modify, merge, publish, or distribute the Software;
+  - sublicense or sell copies of the Software;
+  - reverse engineer, decompile, or disassemble the Software;
+  - create derivative works based on the Software.
+
+Any use of the Software without prior written authorization from the copyright
+holder is strictly prohibited and constitutes copyright infringement, subject
+to civil and criminal penalties under applicable law.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+LIABILITY ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+USE OR OTHER DEALINGS IN THE SOFTWARE.
