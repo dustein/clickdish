@@ -1,3 +1,7 @@
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, UploadFile, File, Depends, Header, Request, Query
 from fastapi.responses import JSONResponse
@@ -6,11 +10,11 @@ from pydantic import BaseModel, EmailStr, Field
 from typing import Optional
 import logging
 
-from api.database import DatabaseManager
-from .ai_service import AIService
-from .auth_deps import get_current_user
-from .payment_service import PaymentService
-from .webhook_handler import verify_webhook_signature, process_payment_notification
+from database import DatabaseManager
+from ai_service import AIService
+from auth_deps import get_current_user
+from payment_service import PaymentService
+from webhook_handler import verify_webhook_signature, process_payment_notification
 
 # ### SEGURANÇA: Imports do Rate Limiter ###
 from slowapi import Limiter, _rate_limit_exceeded_handler
