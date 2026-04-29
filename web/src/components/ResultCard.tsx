@@ -44,8 +44,8 @@ const ResultCard: React.FC<ResultCardProps> = ({ imageSrc, data, id }) => {
       {/* =========================================
           1. HEADER
           ========================================= */}
-      <div className="w-full pt-8 pb-2 px-12 z-20 text-center">
-        <h2 className="text-4xl font-extrabold text-[#111827] tracking-tight leading-tight drop-shadow-sm">
+      <div className="w-full pt-6 pb-1 px-10 z-20 text-center">
+        <h2 className="text-5xl font-extrabold text-[#111827] tracking-tight leading-tight drop-shadow-sm">
           {data.meal_name || 'Análise do Prato'} <img src={ClickDishIcon} alt="ClickDish" className="h-[1.4em] w-auto inline-block align-middle ml-2" />
         </h2>
       </div>
@@ -53,7 +53,7 @@ const ResultCard: React.FC<ResultCardProps> = ({ imageSrc, data, id }) => {
       {/* =========================================
           2. PALCO DA FOTO
           ========================================= */}
-      <div className="relative flex-1 w-full flex items-center justify-center my-4">
+      <div className="relative flex-1 w-full flex items-center justify-center my-1">
 
         {/* Fundo imersivo desfocado */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -66,7 +66,7 @@ const ResultCard: React.FC<ResultCardProps> = ({ imageSrc, data, id }) => {
         </div>
 
         {/* Foto principal */}
-        <div className="relative w-[65%] aspect-square z-20">
+        <div className="relative w-[80%] aspect-square z-20">
 
           {/* Foto redonda */}
           <div className="w-full h-full rounded-full overflow-hidden bg-white"
@@ -134,17 +134,17 @@ const ResultCard: React.FC<ResultCardProps> = ({ imageSrc, data, id }) => {
                 }}
               >
                 <div
-                  className="px-4 py-2 rounded-xl flex flex-col items-center min-w-[120px] max-w-[170px]"
+                  className="px-5 py-3 rounded-xl flex flex-col items-center min-w-[140px] max-w-[200px]"
                   style={{
                     backgroundColor: labelBg,
                     border: `1px solid ${labelBorder}`,
                     boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
                   }}
                 >
-                  <span className="text-[18px] font-semibold leading-tight text-center" style={{ color: '#1a2e20' }}>
+                  <span className="text-[22px] font-semibold leading-tight text-center" style={{ color: '#1a2e20' }}>
                     {item.name}
                   </span>
-                  <span className="text-[14px] font-bold tracking-wide mt-1" style={{ color: calColor }}>
+                  <span className="text-[17px] font-bold tracking-wide mt-1" style={{ color: calColor }}>
                     {item.calories_est} kcal
                   </span>
                 </div>
@@ -158,21 +158,21 @@ const ResultCard: React.FC<ResultCardProps> = ({ imageSrc, data, id }) => {
           3. RODAPÉ
           ========================================= */}
       <div
-        className="w-full flex flex-col justify-end px-12 pb-7 pt-5 z-20 rounded-b-[2.5rem]"
+        className="w-full flex flex-col justify-end px-12 pb-6 pt-4 z-20 rounded-b-[2.5rem]"
         style={{ backgroundColor: '#ffffff', borderTop: '1px solid #f1f5f9' }}
       >
         <div>
-          <h3 className="text-xl font-medium leading-snug tracking-tight mb-2" style={{ color: commentColor }}>
+          <h3 className="text-2xl font-medium leading-snug tracking-tight mb-2" style={{ color: commentColor }}>
             "{data.comentary}"
           </h3>
         </div>
 
-        <div className="mt-4 flex items-end justify-between pt-4" style={{ borderTop: '1px solid #f1f5f9' }}>
+        <div className="mt-3 flex items-end justify-between pt-3" style={{ borderTop: '1px solid #f1f5f9' }}>
           <div>
-            <p className="text-xs font-bold text-slate-400 tracking-widest uppercase mb-1">Nível de Saúde</p>
+            <p className="text-sm font-bold text-slate-400 tracking-widest uppercase mb-1">Nível de Saúde</p>
             <div className="flex items-baseline gap-1.5">
-              <span className="text-5xl font-black leading-none" style={{ color: scoreColor }}>{data.total_vitality}</span>
-              <span className="text-xl font-bold text-slate-400">/100</span>
+              <span className="text-6xl font-black leading-none" style={{ color: scoreColor }}>{data.total_vitality}</span>
+              <span className="text-2xl font-bold text-slate-400">/100</span>
             </div>
           </div>
 
@@ -229,7 +229,7 @@ const ResultCard: React.FC<ResultCardProps> = ({ imageSrc, data, id }) => {
               <rect x="14" y="20" width="2" height="1" fill="#334155"/>
               <rect x="18" y="20" width="2" height="1" fill="#334155"/>
             </svg>
-            <span className="text-xs font-bold text-slate-400 tracking-widest uppercase">ClickDish</span>
+            <span className="text-sm font-bold text-slate-400 tracking-widest uppercase">ClickDish</span>
           </div>
         </div>
       </div>

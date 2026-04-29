@@ -71,7 +71,7 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
 
   return (
     <div className="fixed inset-0 bg-slate-950/40 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-fade-in">
-      <div className="bg-white border border-slate-200 w-full max-w-sm rounded-2xl p-6 relative shadow-2xl">
+      <div className={`border border-slate-200 w-full max-w-sm rounded-2xl p-6 relative shadow-2xl transition-colors duration-300 ${isSignUp ? 'bg-green-50' : 'bg-white'}`}>
         
         <button onClick={onClose} className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors">
           <X size={20} />
@@ -85,7 +85,7 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
             {isSignUp ? 'Criar sua conta' : 'Acessar ClickDish'}
           </h2>
           <p className="text-sm text-slate-500 mt-1">
-            A nutrição pode ser divertida e social!
+            Nutrição saudável pode ser divertida e social !
           </p>
         </div>
 

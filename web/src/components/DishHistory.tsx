@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { supabase } from '../lib/supabase'; // Caminho baseado no seu App.tsx
+import { supabase } from '../lib/supabase';
 
-// Tipagem baseada na estrutura exata que está a chegar do seu banco de dados
 interface AnalysisLog {
-  id: string; // <-- Corrigido para string (UUID)
+  id: string;
   created_at: string;
   raw_result: {
     items: { name: string; calories_est: number; health_score: number }[];
@@ -61,20 +60,16 @@ export const DishHistory: React.FC = () => {
       
       <div className="grid gap-5 md:grid-cols-2">
         {logs.map((log) => {
-          // ESCUDO DE PROTEÇÃO: Ignora os logs antigos de erro que não têm a lista de "items"
           if (!log.raw_result || !log.raw_result.items) return null;
 
-          // ESCUDO DE PROTEÇÃO 2 (NOVO): Ignora os logs onde a IA retornou "Sistema Indisponível"
           const falhou = log.raw_result.items.some(item => item.name === "Sistema Indisponível");
           if (falhou) return null;
 
-          // Tratamento para garantir que vitalidade é um número
           const vitality = Number(log.raw_result.total_vitality) || 0;
 
           return (
             <div key={log.id} className="bg-white p-5 rounded-2xl shadow-lg border border-slate-100 flex flex-col justify-between hover:border-brand-500/30 transition-all hover:shadow-xl">
               
-              {/* Cabeçalho: Data e Nota de Vitalidade */}
               <div className="flex justify-between items-start mb-5 border-b border-slate-50 pb-3">
                 <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
                   {new Date(log.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}

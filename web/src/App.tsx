@@ -6,7 +6,7 @@ import { supabase } from './lib/supabase';
 import type { Session } from '@supabase/supabase-js';
 import { toPng } from 'html-to-image';
 
-// Seus Componentes
+// Componentes
 import { AuthModal } from './components/AuthModal';
 import { UpgradeModal } from './components/UpgradeModal';
 import { UserDashboardModal } from './components/UserDashboardModal';
@@ -36,7 +36,7 @@ interface AnalysisResult {
 const loadingPhrases = [
   "Afiando as facas da IA... 🔪",
   "Aquecendo as panelas... 🔥",
-  "Identificando os ingredientes... 🥦🍗",
+  "Identificando os ingredientes... 🥦",
   "Calculando macros e calorias... 🧾",
   "Temperando os dados... 🧂",
   "Quase lá! Finalizando o empratamento... 🍽️"
@@ -67,7 +67,7 @@ function App() {
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
     if (loading) {
-      interval = setInterval(() => setPhraseIndex((prev) => (prev + 1) % loadingPhrases.length), 2500);
+      interval = setInterval(() => setPhraseIndex((prev) => (prev + 1) % loadingPhrases.length), 4500);
     } else {
       setPhraseIndex(0);
     }
@@ -108,11 +108,12 @@ function App() {
         'X-Device-ID': deviceId,
       };
       if (session?.access_token) headers['Authorization'] = `Bearer ${session.access_token}`;
-      //Para desenvolvimento local usar a linha abaixo
-      // const response = await axios.post('http://127.0.0.1:8000/analyze-dish', formData, { headers });
 
-      //Para produção usar a linha abaixo
-      const response = await axios.post('/api/analyze-dish', formData, { headers });
+      //Para desenvolvimento local usar a linha abaixo:
+      const response = await axios.post('http://127.0.0.1:8000/analyze-dish', formData, { headers });
+
+      //Para produção usar a linha abaixo:
+      // const response = await axios.post('/api/analyze-dish', formData, { headers });
 
       setResult(response.data.analysis);
       
@@ -143,22 +144,7 @@ function App() {
     const cardElement = document.getElementById('resultado-clickdish');
     if (!cardElement) return;
 
-    // ═══════════════════════════════════════════════════════════════════════
-    // ESTRATÉGIA FINAL — wrapper off-screen + clone com position:relative
-    //
-    // O html-to-image serializa o elemento para SVG e inline todos os
-    // computed styles. Se o próprio elemento capturado tiver
-    // "position: absolute; top: -9999px", esse valor fica inlinado na
-    // clone-of-clone dentro do SVG → conteúdo a -9999px → canvas em branco.
-    //
-    // Solução:
-    //  • Um WRAPPER fica em top:-9999px (invisível ao usuário)
-    //  • O CLONE dentro do wrapper tem position:relative;top:0 → fica na
-    //    origem (0,0) do SVG → canvas mostra o conteúdo completo
-    //  • O clone mede 1080×1350 → getComputedStyle de todos os filhos
-    //    retorna valores baseados em 1080px → layout correto e sem cortes
-    // ═══════════════════════════════════════════════════════════════════════
-
+    // ═══ Parametros criacao do Card ══════════════
     const EXPORT_W = 1080;
     const EXPORT_H = 1350;
 
@@ -178,8 +164,6 @@ function App() {
     const resultCardEl = cardElement.firstElementChild as HTMLElement | null;
     if (!resultCardEl) return;
 
-    // Clone com position:relative confirmado (já é a classe padrão do ResultCard)
-    // + dimensões de exportação explícitas
     const clone = resultCardEl.cloneNode(true) as HTMLElement;
     clone.style.position = 'relative';
     clone.style.top = '0px';
@@ -193,8 +177,6 @@ function App() {
     wrapper.appendChild(clone);
     document.body.appendChild(wrapper);
 
-    // Aguarda o browser recalcular o layout do clone a 1080px
-    // (w-full → 1080px, h-full → 1350px, flex-1 distribui corretamente)
     await new Promise((resolve) => setTimeout(resolve, 200));
 
     try {
@@ -216,7 +198,7 @@ function App() {
           await navigator.share({
             files: [file],
             title: 'Meu prato no ClickDish!',
-            text: 'Olha a análise nutricional do meu prato feita pela IA do ClickDish! 🥗⚡',
+            text: 'Veja a análise nutricional do meu prato feita pela IA do ClickDish! 🥗⚡',
           });
           sharedSuccessfully = true;
         }
@@ -239,7 +221,7 @@ function App() {
   };
 
 
-  // NOVA FUNÇÃO: Reseta o estado para tirar uma nova foto
+  // Reseta o estado para tirar uma nova foto
   const handleReset = () => {
     setResult(null);
     setImage(null);
@@ -271,9 +253,7 @@ function App() {
 
       <main className="w-full flex-1 flex flex-col gap-6">
         
-        {/* ============================================================== */}
         {/* TELA 1: CÂMERA E BOTÃO DE ANÁLISE (Oculta quando há resultado) */}
-        {/* ============================================================== */}
         {!result && (
           <div className="flex flex-col gap-6 animate-fade-in">
             <ImageUploader 
@@ -300,9 +280,7 @@ function App() {
 
         {error && <ErrorAlert error={error} session={session} onLoginClick={() => setIsAuthModalOpen(true)} />}
 
-        {/* ============================================================== */}
         {/* TELA 2: RESULTADO FINAL (Aparece limpa ocupando o espaço)      */}
-        {/* ============================================================== */}
         {result && preview && !loading && (
           <div className="w-full flex flex-col gap-4 mb-10 animate-fade-in">
             
@@ -319,9 +297,6 @@ function App() {
               </div>
             )}
 
-            {/* Elemento invisível contendo o ResultCard de exportação a 1080×1350 px.
-                Está fora da viewport (left: -9999px) mas com dimensões reais para que
-                o browser compute o layout correto, usado depois pelo clone de exportação. */}
             <div
               id="resultado-clickdish"
               aria-hidden="true"
@@ -339,16 +314,14 @@ function App() {
               <ResultCard data={result} imageSrc={preview} />
             </div>
             
-            {/* Botão Principal de Compartilhamento */}
             <Button
               variant="gradient"
               onClick={handleShareImage}
               icon={<Download size={20} />}
             >
-              Compartilhar no Instagram
+              Compartilhar !
             </Button>
 
-            {/* Novo Botão Secundário para voltar/resetar o App */}
             <button 
               onClick={handleReset}
               className="mt-2 text-sm font-bold text-slate-500 hover:text-brand-600 flex items-center justify-center gap-2 transition-colors py-2"

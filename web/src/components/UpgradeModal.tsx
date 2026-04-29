@@ -85,7 +85,7 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
           </h2>
 
           <p className="text-sm text-white/60 leading-relaxed mb-2">
-            Não pare agora! Desbloqueie análises diárias, nomes criativos para seus pratos e mostre ao mundo sua consistência com cards exclusivos.
+            Não pare agora! Desbloqueie análises diárias, nomes criativos para seus pratos e mostre ao mundo sua consistência nos seus objetivos com cards exclusivos.
           </p>
           <p className="text-sm text-white/60 leading-relaxed mb-6">Porque Atitude Fitness e Alimentação Saudável devem ser divertidos!</p>
 
@@ -170,14 +170,7 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
           >
             <X size={28} />
             <span>Fechar</span>
-          </button>  
-          
-          {/* <button
-            onClick={onClose}
-            className="mt-3 text-xs text-white/30 hover:text-white/50 transition-colors"
-          >
-            Talvez depois
-          </button> */}
+          </button>
         </div>
       </div>
     </div>

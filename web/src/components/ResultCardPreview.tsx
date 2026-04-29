@@ -6,10 +6,9 @@ interface ResultCardPreviewProps {
   data: AnalysisResult;
 }
 
-/**
- * Versão compacta do card para exibição na tela do celular.
- * A recomendação (data.recommendation) é exibida fora deste componente, no App.tsx.
- */
+
+// * Versão compacta do card para exibição na tela do celular.
+
 const ResultCardPreview: React.FC<ResultCardPreviewProps> = ({ imageSrc, data }) => {
   const accentDark   = '#2a5640';
   const calColor     = '#2a5640';

@@ -1,10 +1,3 @@
-/**
- * PaymentPage.tsx
- * 
- * Página completa de checkout do ClickDish Premium.
- * Exibe resumo do plano, o Payment Brick e estados de feedback
- * (Sucesso / Pendente-PIX / Erro).
- */
 import { useState } from 'react';
 import { CheckCircle, Clock, AlertTriangle, Copy, X, Sparkles, Shield, Zap, ArrowLeft } from 'lucide-react';
 import PaymentBrick, { type PaymentStatus } from './PaymentBrick';
@@ -39,9 +32,6 @@ export default function PaymentPage({
 
   const handlePaymentResult = (result: PaymentResult) => {
     setPaymentResult(result);
-    // Não fechamos mais automaticamente com setTimeout.
-    // O usuário fechará manualmente clicando no botão "Começar a Usar",
-    // que chamará onClose (e por tabela, chamará onSuccess se precisarmos adicionar no botão futuro).
   };
 
   const handleCopyPix = async () => {
@@ -68,21 +58,17 @@ export default function PaymentPage({
     setPaymentResult({ status: 'idle' });
   };
 
-  // =================================================================
   // TELA DE SUCESSO
-  // =================================================================
   if (paymentResult.status === 'success') {
     return (
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
         <div className="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-8 text-center relative overflow-hidden">
-          {/* Decoração de fundo */}
           <div className="absolute inset-0 opacity-5">
             <div className="absolute top-0 left-0 w-32 h-32 bg-brand-500 rounded-full -translate-x-1/2 -translate-y-1/2" />
             <div className="absolute bottom-0 right-0 w-40 h-40 bg-brand-600 rounded-full translate-x-1/3 translate-y-1/3" />
           </div>
 
           <div className="relative z-10">
-            {/* Ícone animado */}
             <div className="w-20 h-20 mx-auto mb-5 rounded-full bg-gradient-to-br from-brand-500 to-emerald-400 flex items-center justify-center shadow-lg shadow-brand-500/30 animate-bounce">
               <CheckCircle size={40} className="text-white" />
             </div>
@@ -108,14 +94,11 @@ export default function PaymentPage({
     );
   }
 
-  // =================================================================
   // TELA DE PIX PENDENTE
-  // =================================================================
   if (paymentResult.status === 'pending' && paymentResult.qrCodeBase64) {
     return (
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
         <div className="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-6 relative">
-          {/* Botão Fechar */}
           <button
             onClick={onClose}
             className="absolute top-4 right-4 p-2 rounded-full hover:bg-slate-100 transition-colors"
@@ -124,7 +107,6 @@ export default function PaymentPage({
           </button>
 
           <div className="text-center">
-            {/* Ícone */}
             <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-amber-100 flex items-center justify-center">
               <Clock size={28} className="text-amber-600" />
             </div>
@@ -163,7 +145,6 @@ export default function PaymentPage({
               </div>
             )}
 
-            {/* Valor */}
             <div className="bg-brand-500/10 rounded-xl px-4 py-2.5 mb-4">
               <p className="text-sm text-brand-700 font-bold">
                 Valor: R$ {planAmount.toFixed(2).replace('.', ',')}
@@ -179,9 +160,7 @@ export default function PaymentPage({
     );
   }
 
-  // =================================================================
   // TELA DE ERRO
-  // =================================================================
   if (paymentResult.status === 'error') {
     return (
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
@@ -213,13 +192,10 @@ export default function PaymentPage({
     );
   }
 
-  // =================================================================
   // TELA PRINCIPAL — CHECKOUT
-  // =================================================================
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
       <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto relative">
-        {/* Header */}
         <div className="sticky top-0 bg-white/95 backdrop-blur-sm rounded-t-3xl border-b border-slate-100 px-6 py-2 flex items-center gap-3 z-10">
           <button
             onClick={onClose}
@@ -260,7 +236,6 @@ export default function PaymentPage({
             </div>
           </div>
 
-          {/* Loading State */}
           {paymentResult.status === 'loading' && (
             <div className="flex flex-col items-center justify-center py-10">
               <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-brand-500 mb-4" />
@@ -281,7 +256,6 @@ export default function PaymentPage({
             </div>
           )}
 
-          {/* Selos de segurança */}
           <div className="flex items-center justify-center gap-4 pt-2 pb-4 border-t border-slate-100">
             <div className="flex items-center gap-1.5 text-xs text-slate-400">
               <Shield size={14} />

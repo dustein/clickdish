@@ -1,14 +1,7 @@
-/**
- * PaymentBrick.tsx
- * 
- * Componente que encapsula o Payment Brick do Mercado Pago.
- * Renderiza o formulário de pagamento e gerencia o envio para o backend.
- */
 import { useEffect, useMemo, useState, useRef, useCallback } from 'react';
 import { initMercadoPago, Payment } from '@mercadopago/sdk-react';
 import axios from 'axios';
 
-// Inicializa o SDK com a Public Key do ambiente
 const MP_PUBLIC_KEY = import.meta.env.VITE_MP_PUBLIC_KEY || '';
 const API_URL = import.meta.env.VITE_API_URL || '';
 
@@ -35,9 +28,6 @@ interface PaymentBrickProps {
 
 export default function PaymentBrick({ amount, onPaymentResult }: PaymentBrickProps) {
   const [brickReady, setBrickReady] = useState(false);
-
-  // Mantemos as props em refs para não precisar recriar as funções (callbacks do Brick)
-  // que dependem dessas props quando o pai re-renderiza.
   const amountRef = useRef(amount);
   const onPaymentResultRef = useRef(onPaymentResult);
 
@@ -56,8 +46,6 @@ export default function PaymentBrick({ amount, onPaymentResult }: PaymentBrickPr
     }
   }, []);
 
-  // Memoizados para evitar re-inicialização do Brick quando o componente pai
-  // re-renderiza (ex: refresh do token Supabase ao retornar para a aba).
   const initialization = useMemo(() => ({
     amount,
   }), [amount]);
@@ -79,19 +67,15 @@ export default function PaymentBrick({ amount, onPaymentResult }: PaymentBrickPr
   }), []);
 
   const handleSubmit = useCallback(async (outerData: any) => {
-    // O SDK do MP envolve os dados reais em outerData.formData (propriedade aninhada).
-    // outerData = { paymentType, selectedPaymentMethod, formData: { payment_method_id, payer, ... } }
     const inner = outerData?.formData ?? outerData;
 
     onPaymentResultRef.current({ status: 'loading' });
 
-    // payment_method_id está no inner (formData aninhado). Fallback para selectedPaymentMethod.
     const paymentMethodId =
       inner.payment_method_id ||
       outerData?.selectedPaymentMethod ||
       (outerData?.paymentType === 'bank_transfer' ? 'pix' : undefined);
 
-    // email está em inner.payer.email
     const payerEmail = inner.payer?.email || '';
 
     try {
@@ -168,7 +152,7 @@ export default function PaymentBrick({ amount, onPaymentResult }: PaymentBrickPr
   if (!MP_PUBLIC_KEY) {
     return (
       <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
-        ⚠️ Chave pública do Mercado Pago não configurada. Verifique <code>VITE_MP_PUBLIC_KEY</code>.
+        ⚠️ Chave pública do Mercado Pago não configurada.
       </div>
     );
   }
