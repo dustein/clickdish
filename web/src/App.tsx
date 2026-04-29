@@ -110,10 +110,10 @@ function App() {
       if (session?.access_token) headers['Authorization'] = `Bearer ${session.access_token}`;
 
       //Para desenvolvimento local usar a linha abaixo:
-      const response = await axios.post('http://127.0.0.1:8000/analyze-dish', formData, { headers });
+      // const response = await axios.post('http://127.0.0.1:8000/analyze-dish', formData, { headers });
 
       //Para produção usar a linha abaixo:
-      // const response = await axios.post('/api/analyze-dish', formData, { headers });
+      const response = await axios.post('/api/analyze-dish', formData, { headers });
 
       setResult(response.data.analysis);
       
