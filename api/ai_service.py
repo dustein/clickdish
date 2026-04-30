@@ -9,46 +9,48 @@ class AIService:
     def __init__(self):
         self.client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
         self.pro_model = "gemini-1.5-pro"
-        self.flash_model = "gemini-2.0-flash"
-
+        self.flash_model = "gemini-1.5-flash"
 
     async def analyze_plate_image(self, image_bytes: bytes):
         """
         Envia a imagem para o Gemini e solicita um retorno em JSON.
         """
         prompt = """
-        Você é um especialista em nutrição e análise visual de alimentos.
-        Analise a imagem deste prato de comida e identifique cada item individualmente.
-        
-        Para cada item identificado, você DEVE fornecer:
-        1. Nome do alimento (curto e preciso).
-        2. Estimativa de calorias (apenas o número).
-        3. Score de saúde (1 a 10, onde 10 é muito saudável).
-        4. Coordenadas de detecção [ymin, xmin, ymax, xmax] em formato NORMALIZADO (0 a 1000).
-           - Exemplo: se o item está no centro, o box seria algo como [400, 400, 600, 600].
-           - Use 0-1000 para mapear a imagem inteira.
+        System Role: You are an expert nutritionist and computer vision specialist for food analysis.
+        Task: Analyze the provided image of a meal and individually detect and identify every food item present.
 
-        Retorne um JSON estritamente no seguinte formato:
+        For each detected item, you MUST extract the following parameters:
+
+        Name: Short, precise food name.
+        Calories: Estimated caloric value (integer only).
+        Health Score: Rate from 1-10 (10 being the healthiest).
+        Bounding Box: [ymin, xmin, ymax, xmax] normalized to a 0-1000 scale (e.g., center = [400, 400, 600, 600]).
+
+        Output format: You must respond STRICTLY with a valid JSON object matching the exact schema below. Do not include markdown formatting like ```json, just the raw string.
         {
-          "items": [
-            {
-              "name": "Arroz Branco",
-              "calories_est": 130,
-              "health_score": 6,
-              "box_2d": [200, 150, 450, 400]
-            }
-          ],
-          "total_vitality": 85,
-          "recommendation": "Uma dica curta e prática de saúde baseada neste prato.",
-          "comentary": "Um comentário divertido ou motivador sobre a escolha do prato.",
-          "meal_name": "Nome criativo para esta refeição"
+            "items": [
+                {
+                    "name": "White Rice",
+                    "calories_est": 130,
+                    "health_score": 6,
+                    "box_2d": [200, 150, 450, 400]
         }
+],
+"total_vitality": 85,
+"recommendation": "A short, practical health tip based on this meal.",
+"comentary": "A fun or motivating comment about the meal choice.",
+"meal_name": "A creative name for this meal"
+}
 
-        REGRAS CRÍTICAS:
-        - Retorne APENAS o JSON.
-        - Não invente itens que não estão na imagem (evite alucinações).
-        - Se não tiver certeza de um item, use o nome mais genérico possível.
-        - As coordenadas box_2d DEVEM estar entre 0 e 1000.
+CRITICAL CONSTRAINTS:
+
+JSON ONLY. Any conversational text will break the system.
+
+ZERO hallucinations. Do not invent items not visible in the image.
+
+If uncertain about an ingredient, default to the broadest accurate generic category.
+
+box_2d coordinates MUST strictly fall within the 0 to 1000 boundary.
         """
 
         try:
