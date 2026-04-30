@@ -20,8 +20,8 @@
       "destination": "/api/main.py"
     },
     {
-      "source": "/((?!api/).*)",
-      "destination": "/index.html"
+      "source": "/(.*)",
+      "destination": "/web/"
     }
   ],
   "headers": [
