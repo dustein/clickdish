@@ -10,6 +10,8 @@ import { toPng } from 'html-to-image';
 import { AuthModal } from './components/AuthModal';
 import { UpgradeModal } from './components/UpgradeModal';
 import { UserDashboardModal } from './components/UserDashboardModal';
+
+const API_URL = import.meta.env.DEV ? 'http://127.0.0.1:8000' : '';
 import { DishHistory } from './components/DishHistory';
 import ResultCard from './components/ResultCard';
 import ResultCardPreview from './components/ResultCardPreview';
@@ -109,11 +111,8 @@ function App() {
       };
       if (session?.access_token) headers['Authorization'] = `Bearer ${session.access_token}`;
 
-      //Para desenvolvimento local usar a linha abaixo:
-      // const response = await axios.post('http://127.0.0.1:8000/analyze-dish', formData, { headers });
-
-      //Para produção usar a linha abaixo:
-      const response = await axios.post('/api/analyze-dish', formData, { headers });
+      // A URL será construída dinamicamente com base no ambiente (Dev ou Prod)
+      const response = await axios.post(`${API_URL}/api/analyze-dish`, formData, { headers });
 
       setResult(response.data.analysis);
       
