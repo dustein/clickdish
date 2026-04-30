@@ -33,6 +33,8 @@ interface UserDashboardModalProps {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const FREE_LIMIT = 2;
+const PREMIUM_MONTHLY_DAILY_LIMIT = 3;
+const PREMIUM_ANNUAL_DAILY_LIMIT = 4;
 
 function getPlanLabel(plan: PlanType): string {
   const labels: Record<PlanType, string> = {
@@ -67,6 +69,7 @@ export function UserDashboardModal({
 }: UserDashboardModalProps) {
   const [usage, setUsage] = useState<UsageRecord | null>(null);
   const [loadingUsage, setLoadingUsage] = useState(true);
+  const [todayCount, setTodayCount] = useState(0);
 
   const user = session.user;
   const displayName =
@@ -84,17 +87,36 @@ export function UserDashboardModal({
     let cancelled = false;
     setLoadingUsage(true);
 
-    supabase
-      .from('user_profiles')
-      .select('is_premium, cards_used, plan_type, premium_since, premium_expires_at')
-      .eq('user_id', user.id)
-      .maybeSingle()
-      .then(({ data, error }) => {
-        if (cancelled) return;
-        if (error) console.error('[DashboardModal] user_profiles error:', error);
-        setUsage(data ?? { is_premium: false, cards_used: 0 });
-        setLoadingUsage(false);
-      });
+    // Compute today's date string in BRT (America/Sao_Paulo, UTC-3)
+    // so the daily limit resets at midnight Brazil time, not UTC midnight.
+    const brtFormatter = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/Sao_Paulo',
+      year: 'numeric', month: '2-digit', day: '2-digit',
+    });
+    const todayStr = brtFormatter.format(new Date()); // "YYYY-MM-DD" in BRT
+    // BRT midnight in ISO 8601 for the DB query (analysis_logs.created_at is UTC)
+    const midnightBRT = new Date(`${todayStr}T00:00:00-03:00`).toISOString();
+
+    // Fetch user profile and today's analysis count in parallel
+    Promise.all([
+      supabase
+        .from('user_profiles')
+        .select('is_premium, cards_used, plan_type, premium_since, premium_expires_at')
+        .eq('user_id', user.id)
+        .maybeSingle(),
+      supabase
+        .from('analysis_logs')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .gte('created_at', midnightBRT),
+    ]).then(([profileRes, logsRes]) => {
+      if (cancelled) return;
+      if (profileRes.error) console.error('[DashboardModal] user_profiles error:', profileRes.error);
+      if (logsRes.error) console.error('[DashboardModal] analysis_logs error:', logsRes.error);
+      setUsage(profileRes.data ?? { is_premium: false, cards_used: 0 });
+      setTodayCount(logsRes.count ?? 0);
+      setLoadingUsage(false);
+    });
 
     return () => {
       cancelled = true;
@@ -112,6 +134,12 @@ export function UserDashboardModal({
   const isPremium = planType !== 'free';
 
   const cardsUsed = usage?.cards_used ?? 0;
+
+  // Daily limit for premium users
+  const premiumDailyLimit = planType === 'annual' ? PREMIUM_ANNUAL_DAILY_LIMIT : PREMIUM_MONTHLY_DAILY_LIMIT;
+  const premiumUsagePercent = isPremium ? Math.min((todayCount / premiumDailyLimit) * 100, 100) : 0;
+
+  // Lifetime usage for free users
   const usagePercent = isPremium ? 0 : Math.min((cardsUsed / FREE_LIMIT) * 100, 100);
 
   return (
@@ -191,13 +219,38 @@ export function UserDashboardModal({
           {loadingUsage ? (
             <div className="h-16 rounded-xl bg-slate-50 border border-slate-100 animate-pulse" />
           ) : isPremium ? (
-            // Premium status card
-            <div className="rounded-xl bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-100 p-4 flex items-center gap-3">
-              <Crown size={28} className="text-amber-500 flex-shrink-0" />
-              <div>
-                <p className="text-sm font-extrabold text-amber-800">Acesso Premium Ativo</p>
-                <p className="text-xs text-amber-600 mt-0.5">Análises ilimitadas habilitadas ✨</p>
+            // Premium daily usage card
+            <div className="rounded-xl bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-100 p-4">
+              <div className="flex items-center gap-3 mb-3">
+                <Crown size={28} className="text-amber-500 flex-shrink-0" />
+                <div>
+                  <p className="text-sm font-extrabold text-amber-800">Acesso Premium Ativo</p>
+                  <p className="text-xs text-amber-600 mt-0.5">
+                    {premiumDailyLimit} análises por dia ✨
+                  </p>
+                </div>
               </div>
+              <div className="flex justify-between items-center mb-2">
+                <p className="text-xs font-bold text-amber-700">Análises hoje</p>
+                <p className="text-xs font-black text-amber-800">
+                  {todayCount}
+                  <span className="font-normal text-amber-500"> / {premiumDailyLimit}</span>
+                </p>
+              </div>
+              {/* Progress bar */}
+              <div className="w-full h-2 rounded-full bg-amber-200/60 overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all duration-500 ${
+                    premiumUsagePercent >= 100 ? 'bg-red-500' : 'bg-amber-500'
+                  }`}
+                  style={{ width: `${premiumUsagePercent}%` }}
+                />
+              </div>
+              {todayCount >= premiumDailyLimit && (
+                <p className="text-[10px] text-red-500 font-semibold mt-1.5">
+                  Limite diário atingido — volte amanhã para mais análises!
+                </p>
+              )}
             </div>
           ) : (
             // Free usage bar

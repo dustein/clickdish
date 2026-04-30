@@ -124,8 +124,14 @@ function App() {
           setError({ title: 'Muitas tentativas!', msg: 'Aguarde 1 minuto.' });
         } else if (err.response?.status === 402) {
           if (session) {
-            // Usuário logado esgotou a cota → convidar para assinar
-            setIsUpgradeModalOpen(true);
+            const detail = typeof err.response?.data?.detail === 'string' ? err.response.data.detail : '';
+            if (detail.includes('diário') || detail.includes('amanhã')) {
+              // Premium user hit daily cap → show informational error, NOT the upgrade modal
+              setError({ title: 'Limite Diário Atingido', msg: detail });
+            } else {
+              // Free user exhausted lifetime quota → show upgrade modal
+              setIsUpgradeModalOpen(true);
+            }
           } else {
             // Usuário anônimo esgotou a cota → convidar para criar conta
             setError({ title: 'Limite Atingido', msg: 'Crie uma conta gratuita para continuar!' });

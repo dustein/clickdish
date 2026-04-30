@@ -57,11 +57,7 @@ except ValueError as e:
 # Injeta o banco no estado (CRÍTICO para o auth_deps funcionar)
 app.state.db = db
 
-
-# ========================================================================
 # Modelos de Validação — Pagamentos
-# ========================================================================
-
 class PayerModel(BaseModel):
     email: str = Field(..., min_length=5, max_length=256, description="E-mail do comprador")
 

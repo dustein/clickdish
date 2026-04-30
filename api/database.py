@@ -6,6 +6,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 INITIAL_FREE_LIMIT = 2
+PREMIUM_MONTHLY_DAILY_LIMIT = 3  # Max analyses per day for monthly subscribers
+PREMIUM_ANNUAL_DAILY_LIMIT = 4   # Max analyses per day for annual subscribers
 
 logger = logging.getLogger("clickdish.database")
 
@@ -43,9 +45,17 @@ class DatabaseManager:
 
             user_data = res.data[0]
 
-            # Se for Premium, libera tudo
+            # Se for Premium, verifica limite diário
             if user_data.get("is_premium"):
-                return True, "Acesso Premium Ilimitado."
+                plan = user_data.get("plan_type", "monthly")
+                daily_limit = PREMIUM_ANNUAL_DAILY_LIMIT if plan == "annual" else PREMIUM_MONTHLY_DAILY_LIMIT
+                today_count = self.get_daily_analysis_count(user_id)
+
+                if today_count < daily_limit:
+                    remaining = daily_limit - today_count
+                    return True, f"Premium {plan.capitalize()}: {remaining} análises restantes hoje."
+
+                return False, f"Limite diário de {daily_limit} análises atingido. Tente novamente amanhã!"
 
             # Se for Free, verifica saldo
             if user_data["cards_used"] < INITIAL_FREE_LIMIT:
@@ -74,6 +84,35 @@ class DatabaseManager:
             return True, f"Visitante: Restam {INITIAL_FREE_LIMIT - cards_used} análises."
 
         return False, "Limite do dispositivo atingido. Crie uma conta ou assine."
+
+    # =========================================================================
+    # Daily Analysis Count (for premium daily limits)
+    # =========================================================================
+
+    def get_daily_analysis_count(self, user_id: str) -> int:
+        """
+        Conta quantas análises o usuário realizou hoje (horário de Brasília — America/Sao_Paulo).
+        O limite diário reseta à meia-noite no fuso horário brasileiro.
+        Usa a tabela analysis_logs com o índice idx_analysis_logs_user_created.
+        """
+        from datetime import datetime, timezone
+        from zoneinfo import ZoneInfo
+        brt = ZoneInfo("America/Sao_Paulo")
+        today_str = datetime.now(brt).strftime("%Y-%m-%d")  # "YYYY-MM-DD" in BRT
+        # Convert BRT midnight to UTC for the DB query (timestamps stored in UTC)
+        midnight_brt = datetime.strptime(today_str, "%Y-%m-%d").replace(tzinfo=brt)
+        midnight_utc = midnight_brt.astimezone(timezone.utc).isoformat()
+
+        try:
+            res = self.supabase.table("analysis_logs") \
+                .select("id", count="exact") \
+                .eq("user_id", user_id) \
+                .gte("created_at", midnight_utc) \
+                .execute()
+            return res.count if res.count is not None else 0
+        except Exception as e:
+            logger.error(f"[DB] Erro ao contar análises diárias para user_id={user_id}: {e}")
+            return 0
 
     # =========================================================================
     # Usage Tracking
