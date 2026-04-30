@@ -8,8 +8,8 @@ import asyncio
 class AIService:
     def __init__(self):
         self.client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
-        self.pro_model = "gemini-1.5-pro"
-        self.flash_model = "gemini-1.5-flash"
+        self.pro_model = "gemini-2.5-flash"
+        self.flash_model = "gemini-3.1-flash"
 
     async def analyze_plate_image(self, image_bytes: bytes):
         """
