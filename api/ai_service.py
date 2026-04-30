@@ -22,35 +22,42 @@ class AIService:
         For each detected item, you MUST extract the following parameters:
 
         Name: Short, precise food name.
+
         Calories: Estimated caloric value (integer only).
+
         Health Score: Rate from 1-10 (10 being the healthiest).
+
         Bounding Box: [ymin, xmin, ymax, xmax] normalized to a 0-1000 scale (e.g., center = [400, 400, 600, 600]).
 
         Output format: You must respond STRICTLY with a valid JSON object matching the exact schema below. Do not include markdown formatting like ```json, just the raw string.
+        CRUCIAL: The generated text values (name, recommendation, comentary, meal_name) MUST be entirely in Brazilian Portuguese (pt-BR). The JSON keys must remain exactly as defined in English.
+
         {
-            "items": [
-                {
-                    "name": "White Rice",
-                    "calories_est": 130,
-                    "health_score": 6,
-                    "box_2d": [200, 150, 450, 400]
+        "items": [
+        {
+        "name": "Arroz Branco",
+        "calories_est": 130,
+        "health_score": 6,
+        "box_2d": [200, 150, 450, 400]
         }
-],
-"total_vitality": 85,
-"recommendation": "A short, practical health tip based on this meal.",
-"comentary": "A fun or motivating comment about the meal choice.",
-"meal_name": "A creative name for this meal"
-}
+        ],
+        "total_vitality": 85,
+        "recommendation": "Uma dica curta e prática de saúde baseada neste prato.",
+        "comentary": "Um comentário divertido ou motivador sobre a escolha do prato.",
+        "meal_name": "Nome criativo para esta refeição"
+        }
 
-CRITICAL CONSTRAINTS:
+        CRITICAL CONSTRAINTS:
 
-JSON ONLY. Any conversational text will break the system.
+        JSON ONLY. Any conversational text will break the system.
 
-ZERO hallucinations. Do not invent items not visible in the image.
+        OUTPUT LANGUAGE: Brazilian Portuguese (pt-BR) for all text fields.
 
-If uncertain about an ingredient, default to the broadest accurate generic category.
+        ZERO hallucinations. Do not invent items not visible in the image.
 
-box_2d coordinates MUST strictly fall within the 0 to 1000 boundary.
+        If uncertain about an ingredient, default to the broadest accurate generic category.
+
+        box_2d coordinates MUST strictly fall within the 0 to 1000 boundary.
         """
 
         try:
